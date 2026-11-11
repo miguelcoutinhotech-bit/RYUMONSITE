@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- ======================================================================
+     RYŪMON  |  cadastro.html
+     Página de cadastro.
+     ----------------------------------------------------------------------
+     COMO LER OS COMENTÁRIOS (pra quem for ler meu código):
+       ====== 1. TÍTULO ======   -> nível 1 (parte grande da página)
+       ==== 1.1 Título ====      -> nível 2 (subparte)
+       ---- 1.1.1 título ----    -> nível 3 (detalhe pequeno)
+       texto normal              -> explicação do que eu fiz
+     ====================================================================== -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Criar conta — RYŪMON</title>
+<link rel="icon" href="img/favicon.png">
+<!-- Esse script pequeno roda ANTES da página aparecer: se o tema salvo (localStorage) for "escuro", -->
+<!-- já coloca a classe darkmode no <html>. Assim a página não pisca branca antes de ficar escura. -->
+<script>
+  if (localStorage.getItem("tema") == "escuro") { document.documentElement.classList.add("darkmode"); }
+</script>
+<!-- Fontes do Google: Cormorant Garamond (títulos), Inter (texto) e Noto Serif JP (kanji). -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<!-- onload = evento que roda quando a página termina de carregar. -->
+<!-- iniciarPagina() está no site.js (cabeçalho, carrinho). Esta página não precisa de função própria. -->
+<body onload="iniciarPagina();">
+<!-- Dragão de fundo (a imagem muda no CSS conforme o tema). -->
+<div class="dragon-bg" aria-hidden="true"></div>
+
+<!-- ======================================================================
+     1. CABEÇALHO (igual em todas as páginas)
+     ====================================================================== -->
+<!-- Só muda qual link fica dourado (class="active"), que é o da página onde a pessoa está. -->
+<header class="site-header"><div class="container nav">
+  <!-- ==== 1.1 Logo ==== -->
+  <!-- oncontextmenu = evento do clique com o botão DIREITO. Chama avisoLogo() (está no site.js). -->
+  <a class="brand" href="index.html"><img src="img/logo.png" alt="Logo RYŪMON: carpa koi" width="48" height="48" oncontextmenu="return avisoLogo()"><span>RYŪMON</span></a>
+  <!-- ==== 1.2 Botão do menu (só aparece no celular) ==== -->
+  <button class="menu-btn" onclick="abrirMenu()" aria-label="Abrir menu">☰</button>
+  <div class="nav-panel" id="nav-panel">
+    <!-- ==== 1.3 Links de navegação ==== -->
+    <nav class="nav-links"><a href="index.html">Início</a><a href="produtos.html">Cardápio</a><a href="pedidos.html">Pedidos</a><a href="perfil.html">Perfil</a></nav>
+    <!-- ==== 1.4 Busca do cabeçalho ==== -->
+    <!-- onsubmit: confere se digitou algo antes de ir pra busca.html (função enviarBuscaTopo). -->
+<!-- onsearch: evento do campo type="search" (quando aperta Enter). -->
+    <form class="search" action="busca.html" onsubmit="return enviarBuscaTopo()">
+      <input type="search" name="q" id="busca-topo" placeholder="Buscar no cardápio…" maxlength="40" onsearch="aoPesquisar(this)" aria-label="Buscar no cardápio">
+      <button type="submit" aria-label="Buscar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    </form>
+    <!-- ==== 1.5 Botões da direita ==== -->
+    <div class="nav-actions">
+      <!-- ---- 1.5.1 trocar tema claro/escuro ---- -->
+      <button class="theme-toggle" onclick="trocarTema()" aria-label="Alternar modo claro e escuro"><span class="knob"></span></button>
+      <!-- ---- 1.5.2 carrinho (o número é preenchido pelo JavaScript) ---- -->
+      <a class="cart-link" href="carrinho.html">Carrinho <span class="badge cart-count">0</span></a>
+      <!-- ---- 1.5.3 Entrar/Cadastrar ou "Olá, Fulano" (o JavaScript preenche aqui, ver montarAreaLogin) ---- -->
+      <div id="auth-area"></div>
+    </div>
+  </div>
+</div></header>
+
+<!-- ======================================================================
+     2. CONTEÚDO DA PÁGINA DE CADASTRO
+     ====================================================================== -->
+<main style="padding:0">
+  <div class="auth">
+    <!-- ==== 2.1 Painel da esquerda (logo + frase) ==== -->
+    <aside class="auth-side">
+      <div class="ring"><img src="img/logo.png" alt="Carpa koi, símbolo do RYŪMON" oncontextmenu="return avisoLogo()"></div>
+      <h2>Onde o dragão guarda o sabor.</h2>
+      <p>Entre ou crie sua conta e peça seus pratos favoritos.</p>
+    </aside>
+    <!-- ==== 2.2 Formulário de cadastro ==== -->
+    <div class="auth-main"><div class="auth-box">
+      <div class="tabs"><a href="login.html">Entrar</a><a class="active" href="cadastro.html">Criar conta</a></div>
+      <h1>Crie sua conta</h1>
+      <p class="page-sub">Leva menos de um minuto. Os campos têm máscara de formatação.</p>
+      <!-- Cada campo tem: maxlength (limite de caracteres), oninput (a máscara), onfocus (borda dourada) -->
+<!-- e onblur (valida quando sai do campo). Tudo é gerado pela função field() do meu gerador, -->
+<!-- mas no HTML final dá pra ver cada evento escrito no <input>. -->
+      <form style="margin-top:24px" onsubmit="return cadastrar()" onreset="return aoLimparCadastro()" novalidate>
+        <div class="form-grid">
+          <!-- ---- 2.2.1 dados pessoais ---- -->
+          <div class="field full"><label for="nome">Nome completo<small>só letras</small></label><input id="nome" type="text" placeholder="Seu nome e sobrenome" maxlength="60" onfocus="destacar(this)" onblur="validarCampo(this,'nome')" oninput="mascaraNome(this)" onselect="mostrarSelecao(this)"><span class="error-msg" id="erro-nome"></span></div>
+          <div class="field "><label for="cpf">CPF<small>máscara · só números</small></label><input id="cpf" type="text" placeholder="000.000.000-00" maxlength="14" onfocus="destacar(this)" onblur="validarCampo(this,'cpf')" oninput="mascaraCPF(this)" ><span class="error-msg" id="erro-cpf"></span></div>
+          <div class="field "><label for="tel">Telefone<small>máscara · só números</small></label><input id="tel" type="tel" placeholder="(00) 00000-0000" maxlength="15" onfocus="destacar(this)" onblur="validarCampo(this,'tel')" oninput="mascaraTelefone(this)" ><span class="error-msg" id="erro-tel"></span></div>
+          <div class="field "><label for="cep">CEP<small>máscara · só números</small></label><input id="cep" type="text" placeholder="00000-000" maxlength="9" onfocus="destacar(this)" onblur="validarCampo(this,'cep')" oninput="mascaraCEP(this)" ><span class="error-msg" id="erro-cep"></span></div>
+          <div class="field "><label for="nasc">Data de nascimento<small>máscara · só números</small></label><input id="nasc" type="text" placeholder="00/00/0000" maxlength="10" onfocus="destacar(this)" onblur="validarCampo(this,'data')" oninput="mascaraData(this)" ><span class="error-msg" id="erro-nasc"></span></div>
+          <!-- ---- 2.2.2 acesso à conta ---- -->
+          <div class="field full"><label for="email">E-mail</label><input id="email" type="email" placeholder="voce@email.com" maxlength="60" onfocus="destacar(this)" onblur="validarCampo(this,'email')" oninput="mascaraEmail(this)" ><span class="error-msg" id="erro-email"></span></div>
+          <div class="field "><label for="senha">Senha</label><div class="pw-wrap"><input id="senha" type="password" placeholder="Mínimo 8 caracteres" maxlength="40" onfocus="destacar(this)" onblur="validarCampo(this,'senha')"><button type="button" class="link" onclick="mostrarSenha('senha', this)">Mostrar</button></div><span class="error-msg" id="erro-senha"></span></div>
+          <div class="field "><label for="senha2">Confirmar senha</label><div class="pw-wrap"><input id="senha2" type="password" placeholder="Repita a senha" maxlength="40" onfocus="destacar(this)" onblur="validarCampo(this,'obrigatorio')"><button type="button" class="link" onclick="mostrarSenha('senha2', this)">Mostrar</button></div><span class="error-msg" id="erro-senha2"></span></div>
+        </div>
+        <!-- ---- 2.2.3 termos e botões ---- -->
+        <label class="check" style="margin-top:20px"><input type="checkbox" id="termos"> Concordo com os termos de uso e a política de privacidade.</label>
+        <div class="actions"><button class="btn btn-gold btn-lg" type="submit">Criar conta</button><button class="btn btn-out btn-lg" type="reset">Limpar</button></div>
+        <p class="center" style="margin-top:16px">Já tem conta? <a class="link" href="login.html">Entrar</a></p>
+      </form>
+    </div></div>
+  </div>
+</main>
+
+<!-- ======================================================================
+     3. RODAPÉ (igual em todas as páginas)
+     ====================================================================== -->
+<footer class="site-footer"><div class="container">
+  <div class="foot-grid">
+    <div><a class="brand" href="index.html"><img src="img/logo.png" alt="" width="40" height="40"><span>RYŪMON</span></a>
+      <p style="margin-top:10px">Culinária japonesa, do nosso dojo à sua mesa.</p></div>
+    <ul><li><a href="produtos.html">Cardápio</a></li><li><a href="pedidos.html">Meus pedidos</a></li><li><a href="carrinho.html">Carrinho</a></li></ul>
+    <ul><li><a href="mailto:contato@ryumon.com.br">contato@ryumon.com.br</a></li><li><span style="font-size:.9rem">(00) 0000-0000</span></li></ul>
+  </div>
+  <p class="copy">© 2026 RYŪMON — Projeto escolar</p>
+</div></footer>
+
+<!-- Aviso rápido que aparece e some (função aviso() do site.js). -->
+<div class="toast" id="aviso" role="status"></div>
+
+<!-- ======================================================================
+     4. SCRIPTS (a ordem importa: um arquivo usa as funções do anterior)
+     ====================================================================== -->
+<script src="js/dados.js"></script>
+<script src="js/mascaras.js"></script>
+<script src="js/site.js"></script>
+<script src="js/cadastro.js"></script>
+</body>
+</html>

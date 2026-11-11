@@ -1,0 +1,81 @@
+{
+  "pedidos": [
+    {
+      "id": 482,
+      "dataHora": "2026-11-10 12:05:00",
+      "pagamento": "Pix",
+      "observacao": "sem wasabi",
+      "subtotal": 154.7,
+      "entrega": 0,
+      "desconto": 0,
+      "total": 154.7,
+      "enderecoEntrega": "Rua das Flores, 120, Centro",
+      "cliente": {
+        "nome": "Ana Souza",
+        "email": "ana.souza@email.com",
+        "telefone": "(11) 98765-4321",
+        "cep": "07000-000"
+      },
+      "itens": [
+        {
+          "produtoId": 1,
+          "quantidade": 2
+        },
+        {
+          "produtoId": 4,
+          "quantidade": 1
+        }
+      ]
+    },
+    {
+      "id": 483,
+      "dataHora": "2026-11-10 12:20:00",
+      "pagamento": "Cartão",
+      "observacao": "",
+      "subtotal": 62.7,
+      "entrega": 7.9,
+      "desconto": 0,
+      "total": 70.6,
+      "enderecoEntrega": "Av. Brasil, 45, Jardim Aurora",
+      "cliente": {
+        "nome": "Bruno Lima",
+        "email": "bruno.lima@email.com",
+        "telefone": "(11) 91234-5678",
+        "cep": "07010-100"
+      },
+      "itens": [
+        {
+          "produtoId": 3,
+          "quantidade": 1
+        },
+        {
+          "produtoId": 8,
+          "quantidade": 2
+        }
+      ]
+    },
+    {
+      "id": 484,
+      "dataHora": "2026-11-10 12:40:00",
+      "pagamento": "Pix",
+      "observacao": "",
+      "subtotal": 119.9,
+      "entrega": 0,
+      "desconto": 5.99,
+      "total": 113.91,
+      "enderecoEntrega": "Rua das Flores, 120, Centro",
+      "cliente": {
+        "nome": "Ana Souza",
+        "email": "ana.souza@email.com",
+        "telefone": "(11) 98765-4321",
+        "cep": "07000-000"
+      },
+      "itens": [
+        {
+          "produtoId": 11,
+          "quantidade": 1
+        }
+      ]
+    }
+  ]
+}

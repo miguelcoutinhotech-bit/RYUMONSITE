@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!-- ======================================================================
+     RYŪMON  |  perfil.html
+     Perfil do usuário (ver, editar e excluir).
+     ----------------------------------------------------------------------
+     COMO LER OS COMENTÁRIOS (pra quem for ler meu código):
+       ====== 1. TÍTULO ======   -> nível 1 (parte grande da página)
+       ==== 1.1 Título ====      -> nível 2 (subparte)
+       ---- 1.1.1 título ----    -> nível 3 (detalhe pequeno)
+       texto normal              -> explicação do que eu fiz
+     ====================================================================== -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meu perfil — RYŪMON</title>
+<link rel="icon" href="img/favicon.png">
+<!-- Esse script pequeno roda ANTES da página aparecer: se o tema salvo (localStorage) for "escuro", -->
+<!-- já coloca a classe darkmode no <html>. Assim a página não pisca branca antes de ficar escura. -->
+<script>
+  if (localStorage.getItem("tema") == "escuro") { document.documentElement.classList.add("darkmode"); }
+</script>
+<!-- Fontes do Google: Cormorant Garamond (títulos), Inter (texto) e Noto Serif JP (kanji). -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<!-- onload = evento que roda quando a página termina de carregar. -->
+<!-- iniciarPagina() está no site.js (cabeçalho, carrinho). E iniciarPerfil() é a função própria desta página. -->
+<body onload="iniciarPagina(); iniciarPerfil()">
+<!-- Dragão de fundo (a imagem muda no CSS conforme o tema). -->
+<div class="dragon-bg" aria-hidden="true"></div>
+
+<!-- ======================================================================
+     1. CABEÇALHO (igual em todas as páginas)
+     ====================================================================== -->
+<!-- Só muda qual link fica dourado (class="active"), que é o da página onde a pessoa está. -->
+<header class="site-header"><div class="container nav">
+  <!-- ==== 1.1 Logo ==== -->
+  <!-- oncontextmenu = evento do clique com o botão DIREITO. Chama avisoLogo() (está no site.js). -->
+  <a class="brand" href="index.html"><img src="img/logo.png" alt="Logo RYŪMON: carpa koi" width="48" height="48" oncontextmenu="return avisoLogo()"><span>RYŪMON</span></a>
+  <!-- ==== 1.2 Botão do menu (só aparece no celular) ==== -->
+  <button class="menu-btn" onclick="abrirMenu()" aria-label="Abrir menu">☰</button>
+  <div class="nav-panel" id="nav-panel">
+    <!-- ==== 1.3 Links de navegação ==== -->
+    <nav class="nav-links"><a href="index.html">Início</a><a href="produtos.html">Cardápio</a><a href="pedidos.html">Pedidos</a><a href="perfil.html" class="active">Perfil</a></nav>
+    <!-- ==== 1.4 Busca do cabeçalho ==== -->
+    <!-- onsubmit: confere se digitou algo antes de ir pra busca.html (função enviarBuscaTopo). -->
+<!-- onsearch: evento do campo type="search" (quando aperta Enter). -->
+    <form class="search" action="busca.html" onsubmit="return enviarBuscaTopo()">
+      <input type="search" name="q" id="busca-topo" placeholder="Buscar no cardápio…" maxlength="40" onsearch="aoPesquisar(this)" aria-label="Buscar no cardápio">
+      <button type="submit" aria-label="Buscar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    </form>
+    <!-- ==== 1.5 Botões da direita ==== -->
+    <div class="nav-actions">
+      <!-- ---- 1.5.1 trocar tema claro/escuro ---- -->
+      <button class="theme-toggle" onclick="trocarTema()" aria-label="Alternar modo claro e escuro"><span class="knob"></span></button>
+      <!-- ---- 1.5.2 carrinho (o número é preenchido pelo JavaScript) ---- -->
+      <a class="cart-link" href="carrinho.html">Carrinho <span class="badge cart-count">0</span></a>
+      <!-- ---- 1.5.3 Entrar/Cadastrar ou "Olá, Fulano" (o JavaScript preenche aqui, ver montarAreaLogin) ---- -->
+      <div id="auth-area"></div>
+    </div>
+  </div>
+</div></header>
+
+<!-- ======================================================================
+     2. CONTEÚDO DO PERFIL
+     ====================================================================== -->
+<main class="container">
+  <h1 class="page-title">Meu perfil</h1>
+  <p class="page-sub">Gerencie seus dados, endereço e preferências.</p>
+  <!-- ==== 2.1 Aviso pra quem NÃO está logado ==== -->
+  <!-- Começa escondido (hidden). O perfil.js mostra se não tiver ninguém logado. -->
+  <div id="profile-gate" class="card empty" hidden style="margin-top:28px"><h3>Entre para acessar seu perfil</h3><p>Faça login ou crie uma conta gratuita.</p>
+    <p style="margin-top:18px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a class="btn btn-gold" href="login.html?next=perfil.html">Entrar</a><a class="btn btn-out" href="cadastro.html">Criar conta</a></p></div>
+  <!-- ==== 2.2 Perfil (só aparece pra quem está logado) ==== -->
+  <div id="profile-wrap" class="profile" style="margin-top:28px" hidden>
+    <!-- ---- 2.2.1 menu lateral ---- -->
+    <aside class="card side">
+      <img class="avatar" src="img/logo.png" alt="Avatar com a carpa koi" oncontextmenu="return avisoLogo()">
+      <h2 id="p-name"></h2><p id="p-email"></p>
+      <div class="menu">
+        <button id="menu-dados" class="active" onclick="mostrarPainel('dados')">Dados pessoais</button>
+        <button id="menu-end" onclick="mostrarPainel('end')">Endereço</button>
+        <button id="menu-tema" onclick="mostrarPainel('tema')">Aparência</button>
+        <button onclick="sair()">Sair</button>
+        <button class="danger" onclick="excluirConta()">Excluir conta</button>
+      </div>
+    </aside>
+    <div>
+      <!-- ---- 2.2.2 painel: dados pessoais ---- -->
+      <section class="card panel active" id="panel-dados">
+        <h2>Dados pessoais</h2>
+        <form onsubmit="return salvarDados()" onreset="return aoDescartar()" novalidate>
+          <div class="form-grid">
+            <div class="field full"><label for="f-nome">Nome completo<small>só letras</small></label><input id="f-nome" type="text" maxlength="60" onfocus="destacar(this)" onblur="validarCampo(this,'nome')" oninput="mascaraNome(this)" onselect="mostrarSelecao(this)"><span class="error-msg" id="erro-f-nome"></span></div>
+            <div class="field "><label for="f-email">E-mail</label><input id="f-email" type="email" maxlength="60" onfocus="destacar(this)" onblur="validarCampo(this,'email')" oninput="mascaraEmail(this)" ><span class="error-msg" id="erro-f-email"></span></div>
+            <div class="field "><label for="f-nasc">Data de nascimento<small>máscara · só números</small></label><input id="f-nasc" type="text" placeholder="00/00/0000" maxlength="10" onfocus="destacar(this)" onblur="validarCampo(this,'data')" oninput="mascaraData(this)" ><span class="error-msg" id="erro-f-nasc"></span></div>
+            <div class="field "><label for="f-cpf">CPF<small>máscara · só números</small></label><input id="f-cpf" type="text" placeholder="000.000.000-00" maxlength="14" onfocus="destacar(this)" onblur="validarCampo(this,'cpf')" oninput="mascaraCPF(this)" ><span class="error-msg" id="erro-f-cpf"></span></div>
+            <div class="field "><label for="f-tel">Telefone<small>máscara · só números</small></label><input id="f-tel" type="tel" placeholder="(00) 00000-0000" maxlength="15" onfocus="destacar(this)" onblur="validarCampo(this,'tel')" oninput="mascaraTelefone(this)" ><span class="error-msg" id="erro-f-tel"></span></div>
+          </div>
+          <div class="actions"><button class="btn btn-gold btn-lg" type="submit">Salvar alterações</button><button class="btn btn-out btn-lg" type="reset">Descartar</button></div>
+        </form>
+      </section>
+      <!-- ---- 2.2.3 painel: endereço ---- -->
+      <section class="card panel" id="panel-end">
+        <h2>Endereço de entrega</h2>
+        <form onsubmit="return salvarEndereco()" onreset="return aoDescartar()" novalidate>
+          <div class="form-grid">
+            <div class="field "><label for="f-cep">CEP<small>máscara · só números</small></label><input id="f-cep" type="text" placeholder="00000-000" maxlength="9" onfocus="destacar(this)" onblur="validarCampo(this,'cep')" oninput="mascaraCEP(this)" ><span class="error-msg" id="erro-f-cep"></span></div>
+            <div class="field "><label for="f-num">Número<small>só números</small></label><input id="f-num" type="text" placeholder="000" maxlength="6" onfocus="destacar(this)" onblur="validarCampo(this,'numero')" oninput="mascaraNumero(this)" ><span class="error-msg" id="erro-f-num"></span></div>
+            <div class="field full"><label for="f-end">Endereço</label><input id="f-end" type="text" placeholder="Rua, bairro, cidade" maxlength="80" onfocus="destacar(this)" onblur="validarCampo(this,'endereco')" oninput="mascaraEndereco(this)" ><span class="error-msg" id="erro-f-end"></span></div>
+            <div class="field full"><label for="f-comp">Complemento</label><input id="f-comp" type="text" placeholder="Apto, bloco… (opcional)" maxlength="30" oninput="mascaraEndereco(this)" onfocus="destacar(this)" onblur="this.style.borderColor=''"></div>
+          </div>
+          <div class="actions"><button class="btn btn-gold btn-lg" type="submit">Salvar endereço</button><button class="btn btn-out btn-lg" type="reset">Descartar</button></div>
+        </form>
+      </section>
+      <!-- ---- 2.2.4 painel: aparência (tema) ---- -->
+      <section class="card panel" id="panel-tema">
+        <h2>Aparência</h2>
+        <p class="page-sub" style="margin-bottom:16px">Escolha o tema do site. O dragão de fundo muda junto.</p>
+        <div class="seg"><button id="btn-claro" onclick="setarTema('claro')" aria-pressed="true">Claro</button><button id="btn-escuro" onclick="setarTema('escuro')" aria-pressed="false">Escuro</button></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ======================================================================
+     3. RODAPÉ (igual em todas as páginas)
+     ====================================================================== -->
+<footer class="site-footer"><div class="container">
+  <div class="foot-grid">
+    <div><a class="brand" href="index.html"><img src="img/logo.png" alt="" width="40" height="40"><span>RYŪMON</span></a>
+      <p style="margin-top:10px">Culinária japonesa, do nosso dojo à sua mesa.</p></div>
+    <ul><li><a href="produtos.html">Cardápio</a></li><li><a href="pedidos.html">Meus pedidos</a></li><li><a href="carrinho.html">Carrinho</a></li></ul>
+    <ul><li><a href="mailto:contato@ryumon.com.br">contato@ryumon.com.br</a></li><li><span style="font-size:.9rem">(00) 0000-0000</span></li></ul>
+  </div>
+  <p class="copy">© 2026 RYŪMON — Projeto escolar</p>
+</div></footer>
+
+<!-- Aviso rápido que aparece e some (função aviso() do site.js). -->
+<div class="toast" id="aviso" role="status"></div>
+
+<!-- ======================================================================
+     4. SCRIPTS (a ordem importa: um arquivo usa as funções do anterior)
+     ====================================================================== -->
+<script src="js/dados.js"></script>
+<script src="js/mascaras.js"></script>
+<script src="js/site.js"></script>
+<script src="js/perfil.js"></script>
+</body>
+</html>

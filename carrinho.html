@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- ======================================================================
+     RYŪMON  |  carrinho.html
+     Carrinho de compras.
+     ----------------------------------------------------------------------
+     COMO LER OS COMENTÁRIOS (pra quem for ler meu código):
+       ====== 1. TÍTULO ======   -> nível 1 (parte grande da página)
+       ==== 1.1 Título ====      -> nível 2 (subparte)
+       ---- 1.1.1 título ----    -> nível 3 (detalhe pequeno)
+       texto normal              -> explicação do que eu fiz
+     ====================================================================== -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrinho — RYŪMON</title>
+<link rel="icon" href="img/favicon.png">
+<!-- Esse script pequeno roda ANTES da página aparecer: se o tema salvo (localStorage) for "escuro", -->
+<!-- já coloca a classe darkmode no <html>. Assim a página não pisca branca antes de ficar escura. -->
+<script>
+  if (localStorage.getItem("tema") == "escuro") { document.documentElement.classList.add("darkmode"); }
+</script>
+<!-- Fontes do Google: Cormorant Garamond (títulos), Inter (texto) e Noto Serif JP (kanji). -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<!-- onload = evento que roda quando a página termina de carregar. -->
+<!-- iniciarPagina() está no site.js (cabeçalho, carrinho). E iniciarCarrinho() é a função própria desta página. -->
+<body onload="iniciarPagina(); iniciarCarrinho()">
+<!-- Dragão de fundo (a imagem muda no CSS conforme o tema). -->
+<div class="dragon-bg" aria-hidden="true"></div>
+
+<!-- ======================================================================
+     1. CABEÇALHO (igual em todas as páginas)
+     ====================================================================== -->
+<!-- Só muda qual link fica dourado (class="active"), que é o da página onde a pessoa está. -->
+<header class="site-header"><div class="container nav">
+  <!-- ==== 1.1 Logo ==== -->
+  <!-- oncontextmenu = evento do clique com o botão DIREITO. Chama avisoLogo() (está no site.js). -->
+  <a class="brand" href="index.html"><img src="img/logo.png" alt="Logo RYŪMON: carpa koi" width="48" height="48" oncontextmenu="return avisoLogo()"><span>RYŪMON</span></a>
+  <!-- ==== 1.2 Botão do menu (só aparece no celular) ==== -->
+  <button class="menu-btn" onclick="abrirMenu()" aria-label="Abrir menu">☰</button>
+  <div class="nav-panel" id="nav-panel">
+    <!-- ==== 1.3 Links de navegação ==== -->
+    <nav class="nav-links"><a href="index.html">Início</a><a href="produtos.html">Cardápio</a><a href="pedidos.html">Pedidos</a><a href="perfil.html">Perfil</a></nav>
+    <!-- ==== 1.4 Busca do cabeçalho ==== -->
+    <!-- onsubmit: confere se digitou algo antes de ir pra busca.html (função enviarBuscaTopo). -->
+<!-- onsearch: evento do campo type="search" (quando aperta Enter). -->
+    <form class="search" action="busca.html" onsubmit="return enviarBuscaTopo()">
+      <input type="search" name="q" id="busca-topo" placeholder="Buscar no cardápio…" maxlength="40" onsearch="aoPesquisar(this)" aria-label="Buscar no cardápio">
+      <button type="submit" aria-label="Buscar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    </form>
+    <!-- ==== 1.5 Botões da direita ==== -->
+    <div class="nav-actions">
+      <!-- ---- 1.5.1 trocar tema claro/escuro ---- -->
+      <button class="theme-toggle" onclick="trocarTema()" aria-label="Alternar modo claro e escuro"><span class="knob"></span></button>
+      <!-- ---- 1.5.2 carrinho (o número é preenchido pelo JavaScript) ---- -->
+      <a class="cart-link active" href="carrinho.html">Carrinho <span class="badge cart-count">0</span></a>
+      <!-- ---- 1.5.3 Entrar/Cadastrar ou "Olá, Fulano" (o JavaScript preenche aqui, ver montarAreaLogin) ---- -->
+      <div id="auth-area"></div>
+    </div>
+  </div>
+</div></header>
+
+<!-- ======================================================================
+     2. CONTEÚDO DO CARRINHO
+     ====================================================================== -->
+<main class="container">
+  <h1 class="page-title">Seu carrinho</h1>
+  <p class="page-sub" id="cart-sub"></p>
+  <div class="cart-layout" style="margin-top:28px">
+    <!-- ==== 2.1 Coluna da esquerda: itens e observações ==== -->
+    <div>
+      <div id="cart-list"></div>
+      <p style="display:flex;gap:18px;flex-wrap:wrap"><a class="link" href="produtos.html">← Continuar comprando</a><button class="link" onclick="desfazerUltimo()">Desfazer última adição</button></p>
+      <!-- oninput do textarea: atualiza o contador "0/200". onselect: mostra no console o que foi selecionado. -->
+      <div class="field" style="margin-top:26px"><label for="obs">Observações do pedido</label>
+        <textarea id="obs" maxlength="200" placeholder="Ex.: sem cebolinha, enviar hashi extra…" oninput="contarCaracteres(this, 'contador-obs')" onselect="mostrarSelecao(this)"></textarea>
+        <div class="counter" id="contador-obs">0/200</div></div>
+    </div>
+    <!-- ==== 2.2 Coluna da direita: resumo do pedido ==== -->
+    <aside class="card summary">
+      <h2>Resumo do pedido</h2>
+      <!-- ---- 2.2.1 valores (preenchidos pelo carrinho.js) ---- -->
+      <div class="sum-row"><span>Subtotal</span><span id="r-sub"></span></div>
+      <div class="sum-row"><span>Taxa de entrega</span><span id="r-delivery"></span></div>
+      <div class="sum-row" id="r-disc-row" hidden><span>Desconto</span><span id="r-disc"></span></div>
+      <p id="free-note" class="page-sub" style="font-size:.8rem"></p>
+      <div class="sum-row total"><span>Total</span><strong id="r-total"></strong></div>
+      <!-- ---- 2.2.2 cupom ---- -->
+      <label class="lbl" for="cupom">Cupom de desconto</label>
+      <div class="coupon"><input id="cupom" maxlength="12" placeholder="RYUMON10" autocomplete="off"><button class="btn btn-out" onclick="aplicarCupom()">Aplicar</button></div>
+      <p id="coupon-msg" style="font-size:.8rem;min-height:1.2em"></p>
+      <!-- ---- 2.2.3 endereço de entrega ---- -->
+      <div class="field" style="margin-top:10px"><label for="endereco">Endereço de entrega</label>
+        <input id="endereco" maxlength="80" placeholder="Rua, número, bairro" oninput="mascaraEndereco(this)" onfocus="destacar(this)" onblur="validarCampo(this,'endereco')">
+        <span class="error-msg" id="erro-endereco"></span></div>
+      <!-- ---- 2.2.4 forma de pagamento ---- -->
+      <span class="lbl">Pagamento</span>
+      <div class="pay">
+        <label><input type="radio" name="pagto" value="Pix" checked><span>Pix</span></label>
+        <label><input type="radio" name="pagto" value="Cartão"><span>Cartão</span></label>
+        <label><input type="radio" name="pagto" value="Dinheiro"><span>Dinheiro</span></label>
+      </div>
+      <button class="btn btn-gold btn-lg btn-block" onclick="finalizarPedido()">Finalizar pedido</button>
+    </aside>
+  </div>
+</main>
+
+<!-- ======================================================================
+     3. RODAPÉ (igual em todas as páginas)
+     ====================================================================== -->
+<footer class="site-footer"><div class="container">
+  <div class="foot-grid">
+    <div><a class="brand" href="index.html"><img src="img/logo.png" alt="" width="40" height="40"><span>RYŪMON</span></a>
+      <p style="margin-top:10px">Culinária japonesa, do nosso dojo à sua mesa.</p></div>
+    <ul><li><a href="produtos.html">Cardápio</a></li><li><a href="pedidos.html">Meus pedidos</a></li><li><a href="carrinho.html">Carrinho</a></li></ul>
+    <ul><li><a href="mailto:contato@ryumon.com.br">contato@ryumon.com.br</a></li><li><span style="font-size:.9rem">(00) 0000-0000</span></li></ul>
+  </div>
+  <p class="copy">© 2026 RYŪMON — Projeto escolar</p>
+</div></footer>
+
+<!-- Aviso rápido que aparece e some (função aviso() do site.js). -->
+<div class="toast" id="aviso" role="status"></div>
+
+<!-- ======================================================================
+     4. SCRIPTS (a ordem importa: um arquivo usa as funções do anterior)
+     ====================================================================== -->
+<script src="js/dados.js"></script>
+<script src="js/mascaras.js"></script>
+<script src="js/site.js"></script>
+<script src="js/carrinho.js"></script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+/* ======================================================================
+   RYŪMON  |  style.css
+   Aqui ficam TODAS as cores, tamanhos e o jeito que o site aparece.
+   ----------------------------------------------------------------------
+   COMO LER OS COMENTÁRIOS (pra quem for ler meu código):
+     // ====== 1. TÍTULO ======   -> nível 1 (parte grande do arquivo)
+     // ==== 1.1 Título ====      -> nível 2 (subparte)
+     // ---- 1.1.1 título ----    -> nível 3 (detalhe pequeno)
+     comentário normal            -> explicação do que eu fiz
+   ----------------------------------------------------------------------
+   IDEIA PRINCIPAL: o modo básico do site é o CLARO. O modo escuro é uma
+   classe chamada "darkmode" que o JavaScript coloca na tag <html>. Quando
+   essa classe existe, as variáveis de cor mudam e o site inteiro troca de cor.
+   ====================================================================== */
+
+/* ======================================================================
+   1. PALETA DE CORES (modo claro e modo escuro)
+   ====================================================================== */
+/* ==== 1.1 Modo CLARO (é o modo básico, fica no :root) ==== */
+/* Variável CSS = um "apelido" pra uma cor. Eu escrevo var(--bg) em vez de repetir o código da cor. */
+/* Se eu mudar a cor aqui em cima, o site inteiro muda junto. */
+:root {
+  --text: #160808;
+  --bg: #f8e7e8;
+  --primary: #a7bee2;
+  --secondary: #dd7e7e;
+  --accent: #caa52b;
+
+  /* ---- 1.1.1 cores derivadas (as que eu criei a partir da paleta) ---- */
+  --accent-ink: #7a5c00;          /* dourado legível como texto */
+  --on-accent: #160808;           /* texto sobre botão dourado */
+  --tile-ink: #160808;            /* kanji sobre a cor secundária */
+  --danger: #a11a1a;
+  --card: rgba(248, 231, 232, 0.8);
+  --line: rgba(22, 8, 8, 0.18);
+  --field: rgba(22, 8, 8, 0.06);
+  --muted: rgba(22, 8, 8, 0.7);
+  --accent-soft: rgba(202, 165, 43, 0.45);
+  --accent-faint: rgba(202, 165, 43, 0.2);
+  --danger-faint: rgba(161, 26, 26, 0.15);
+
+  --font-title: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-jp: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+  --radius: 16px;
+}
+
+/* ==== 1.2 Modo ESCURO (classe .darkmode no <html>) ==== */
+/* Quando o JavaScript coloca a classe "darkmode" no <html>, essas variáveis */
+/* sobrescrevem as de cima. Só mudo as cores que precisam mudar. */
+.darkmode {
+  --text: #f7e9e9;
+  --bg: #180708;
+  --primary: #1d3458;
+  --secondary: #812222;
+  --accent: #d4af35;
+  --accent-ink: #d4af35;
+  --tile-ink: #d4af35;
+  --danger: #ff8d8d;
+  --card: rgba(247, 233, 233, 0.07);
+  --line: rgba(247, 233, 233, 0.16);
+  --field: rgba(247, 233, 233, 0.08);
+  --muted: rgba(247, 233, 233, 0.7);
+  --accent-soft: rgba(212, 175, 53, 0.45);
+  --accent-faint: rgba(212, 175, 53, 0.2);
+  --danger-faint: rgba(255, 141, 141, 0.15);
+}
+
+/* ======================================================================
+   2. BASE DA PÁGINA (valem pro site todo)
+   ====================================================================== */
+/* ==== 2.1 Zerar e padronizar ==== */
+/* * = todos os elementos. Tiro as margens padrão do navegador pra eu controlar tudo. */
+/* box-sizing: border-box faz o padding e a borda ficarem DENTRO da largura do elemento. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+/* O atributo hidden do HTML esconde o elemento. O !important garante que ele ganhe */
+/* de qualquer display que eu coloque em outros lugares (usei no carrinho e no perfil). */
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+/* ==== 2.2 Corpo da página ==== */
+/* O body é um flex em coluna: cabeçalho em cima, conteúdo no meio e rodapé embaixo. */
+/* min-height: 100vh deixa o site com pelo menos a altura da tela (o rodapé não sobe). */
+/* transition faz a troca claro/escuro acontecer suave em 0,3 segundo. */
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background .3s, color .3s;
+}
+/* flex: 1 faz o conteúdo (main) ocupar o espaço que sobrar, empurrando o rodapé pra baixo. */
+main { flex: 1; padding-block: 40px 64px; }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3 { font-family: var(--font-title); font-weight: 700; line-height: 1.1; }
+/* .container centraliza o conteúdo e limita a largura em 1312px. */
+.container { width: min(1312px, 100% - 48px); margin-inline: auto; }
+/* .sr-only esconde o texto da tela mas deixa pra leitores de tela (acessibilidade). */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Borda dourada quando a pessoa navega pelo teclado (Tab). Ajuda na acessibilidade. */
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ======================================================================
+   3. DRAGÃO DE FUNDO (a imagem troca com o tema)
+   ====================================================================== */
+/* ==== 3.1 Dragão do modo claro ==== */
+/* É uma <div> fixa que fica ATRÁS de tudo (z-index: -1) e ocupa a tela inteira. */
+/* A imagem é o dragão cinza com fundo branco. O blend-mode "multiply" some com o branco */
+/* e deixa só o dragão por cima da cor de fundo do site. */
+.dragon-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-color: var(--bg);
+  background-image: url("../img/dragao-claro.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 118vh;
+  background-blend-mode: multiply;
+  opacity: .42;
+  transition: opacity .3s;
+}
+/* ==== 3.2 Dragão do modo escuro ==== */
+/* No escuro troco pra imagem do dragão com fundo preto. O blend-mode "lighten" */
+/* some com o preto e deixa só o dragão cinza. Assim o dragão muda junto com o tema. */
+.darkmode .dragon-bg {
+  background-image: url("../img/dragao-escuro.png");
+  background-blend-mode: lighten;
+  opacity: .5;
+}
+
+/* ======================================================================
+   4. BOTÕES
+   ====================================================================== */
+/* ==== 4.1 Base de todo botão (.btn) ==== */
+/* Os outros botões (.btn-gold, .btn-out...) só mudam a cor em cima dessa base. */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 0 26px; border-radius: 999px;
+  border: 1.5px solid transparent; font-weight: 600; font-size: .95rem;
+  transition: transform .15s, filter .15s, background .2s;
+}
+.btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+/* ==== 4.2 Cores dos botões ==== */
+/* .btn-gold = preenchido dourado | .btn-out = só a borda | .btn-wine = vinho */
+.btn-gold { background: var(--accent); color: var(--on-accent); }
+.btn-out { border-color: var(--accent); color: var(--text); background: transparent; }
+.btn-wine { background: var(--secondary); color: var(--text); }
+.btn-lg { min-height: 56px; padding: 0 34px; font-size: 1rem; }
+.btn-block { width: 100%; }
+.btn-sm { min-height: 36px; padding: 0 16px; font-size: .85rem; }
+.btn-danger { border-color: var(--danger); color: var(--danger); background: transparent; }
+.link { color: var(--accent-ink); font-weight: 600; background: none; border: 0; }
+.link:hover { text-decoration: underline; }
+
+/* ======================================================================
+   5. CABEÇALHO (barra de cima)
+   ====================================================================== */
+/* ==== 5.1 A barra ==== */
+/* position: sticky faz o cabeçalho ficar grudado no topo quando a página rola. */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--primary);
+  border-bottom: 1px solid var(--accent-soft);
+}
+.nav { display: flex; align-items: center; gap: 24px; min-height: 80px; }
+/* ==== 5.2 Logo e links ==== */
+/* .brand = logo + nome RYŪMON | .nav-links = Início, Cardápio, Pedidos, Perfil */
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-title); font-weight: 700; font-size: 1.9rem; letter-spacing: .18em; }
+.brand img { width: 48px; height: 48px; border-radius: 10px; }
+.nav-panel { display: flex; align-items: center; justify-content: space-between; gap: 22px; flex: 1; }
+.nav-links { display: flex; gap: 22px; }
+.nav-links a { font-weight: 500; font-size: .95rem; padding: 6px 0; border-bottom: 2px solid transparent; }
+.nav-links a:hover, .nav-links a.active { color: var(--accent-ink); border-color: var(--accent); }
+/* ==== 5.3 Campo de busca do cabeçalho ==== */
+.search { display: flex; align-items: center; background: var(--field); border: 1px solid var(--line); border-radius: 999px; padding-inline: 14px 4px; height: 40px; width: 250px; }
+.search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; font-size: .88rem; }
+.search input::placeholder { color: var(--muted); }
+.search button { background: none; border: 0; width: 32px; height: 32px; display: grid; place-items: center; }
+/* ==== 5.4 Botões da direita (tema, carrinho, entrar) ==== */
+.nav-actions { display: flex; align-items: center; gap: 14px; }
+/* ---- 5.4.1 botão de trocar o tema ---- */
+/* É um botãozinho tipo "liga/desliga". A bolinha (.knob) anda pra direita no modo escuro. */
+.theme-toggle { position: relative; width: 56px; height: 28px; border-radius: 14px; border: 1px solid var(--accent); background: var(--field); flex: none; }
+.theme-toggle .knob { position: absolute; top: 2px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; font-size: 12px; color: var(--on-accent); transition: transform .25s; }
+.theme-toggle .knob::after { content: "☀"; }
+.darkmode .theme-toggle .knob { transform: translateX(27px); }
+.darkmode .theme-toggle .knob::after { content: "☾"; }
+.cart-link { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: .95rem; }
+.cart-link.active { color: var(--accent-ink); }
+/* ---- 5.4.2 numerinho do carrinho ---- */
+.badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--secondary); color: var(--text); font-size: .75rem; font-weight: 600; display: inline-grid; place-items: center; }
+#auth-area { display: flex; gap: 10px; align-items: center; }
+/* ==== 5.5 Botão ☰ do celular ==== */
+/* Fica escondido (display: none) no computador. Só aparece no celular, lá no @media. */
+.menu-btn { display: none; background: none; border: 1px solid var(--line); border-radius: 10px; width: 44px; height: 44px; font-size: 1.4rem; margin-left: auto; }
+
+/* ======================================================================
+   6. RODAPÉ
+   ====================================================================== */
+.site-footer { background: var(--primary); border-top: 1px solid var(--accent-soft); padding-block: 32px 20px; }
+.foot-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 24px; align-items: start; }
+.foot-grid .brand { font-size: 1.5rem; }
+.foot-grid .brand img { width: 40px; height: 40px; }
+.foot-grid p, .foot-grid a { font-size: .9rem; color: var(--muted); }
+.foot-grid ul { list-style: none; display: grid; gap: 6px; }
+.foot-grid a:hover { color: var(--accent-ink); }
+.copy { text-align: center; margin-top: 22px; font-size: .8rem; color: var(--muted); }
+
+/* ======================================================================
+   7. TÍTULOS DAS PÁGINAS
+   ====================================================================== */
+/* clamp(mínimo, ideal, máximo) faz a letra crescer e diminuir conforme a tela. */
+.page-title { font-size: clamp(2.4rem, 5vw, 3.6rem); }
+.page-sub { color: var(--muted); margin-top: 6px; }
+.eyebrow { font-size: .8rem; font-weight: 600; letter-spacing: .2em; color: var(--accent-ink); text-transform: uppercase; }
+.underline { display: block; width: 56px; height: 2px; background: var(--accent); margin-block: 10px 28px; }
+
+/* ======================================================================
+   8. PÁGINA INICIAL (hero = a parte grande do topo)
+   ====================================================================== */
+/* ==== 8.1 Hero em 2 colunas: texto de um lado e a logo do outro (display: grid) ==== */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; padding-block: 24px 40px; }
+.hero h1 { font-size: clamp(2.8rem, 6.2vw, 4.9rem); margin-block: 14px 22px; }
+.hero p { font-size: 1.1rem; color: var(--muted); max-width: 540px; }
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 30px; }
+.hero-art { position: relative; justify-self: center; width: min(520px, 100%); aspect-ratio: 1; }
+.hero-art img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+/* ==== 8.2 Anel dourado em volta da logo ==== */
+/* O ::before cria um elemento "de enfeite" sem precisar escrever nada no HTML. */
+.hero-art::before { content: ""; position: absolute; inset: -28px; border: 1.5px solid var(--accent-soft); border-radius: 50%; }
+.section-title { font-size: 2.2rem; }
+/* ==== 8.3 Cards de destaque e "Como funciona" ==== */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.cat-card { display: flex; gap: 20px; align-items: center; padding: 16px; transition: transform .2s; }
+.cat-card:hover { transform: translateY(-3px); }
+.cat-card h3 { font-size: 1.7rem; }
+.cat-card p { font-size: .85rem; color: var(--muted); }
+.cat-card strong { color: var(--accent-ink); font-size: .9rem; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.step { padding: 24px; }
+.step b { font-family: var(--font-title); font-size: 2.6rem; color: var(--accent-ink); }
+.step h3 { font-size: 1.5rem; margin-block: 4px 6px; }
+.step p { color: var(--muted); font-size: .92rem; }
+.block { margin-top: 56px; }
+
+/* ======================================================================
+   9. CARDS E PRODUTOS
+   ====================================================================== */
+/* .card = a caixinha base (fundo transparente + borda). Quase tudo no site usa ela. */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); backdrop-filter: blur(4px); }
+/* ==== 9.1 Quadrado do kanji (no lugar da foto do prato) ==== */
+/* Quando eu tiver as fotos de verdade é só trocar isso aqui por uma <img>. */
+.tile { background: var(--secondary); color: var(--tile-ink); border-radius: 10px; display: grid; place-items: center; font-family: var(--font-jp); font-size: 3.4rem; height: 140px; }
+.tile.sm { width: 120px; height: 120px; flex: none; font-size: 2.8rem; }
+.tile.long { font-size: 2.2rem; }
+.tile.xs { width: 92px; height: 92px; flex: none; font-size: 2.2rem; }
+/* ==== 9.2 Grade de produtos ==== */
+/* repeat(auto-fill, minmax(250px, 1fr)): cria quantas colunas de pelo menos 250px couberem. */
+/* No celular vira 1 coluna sozinho, sem eu precisar fazer conta. */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+.prod { padding: 10px; display: flex; flex-direction: column; }
+.prod h3 { font-size: 1.5rem; margin: 14px 8px 2px; }
+.prod p { font-size: .85rem; color: var(--muted); margin-inline: 8px; flex: 1; }
+.prod-foot { display: flex; align-items: center; justify-content: space-between; margin: 14px 8px 6px; }
+.price { font-weight: 600; font-size: 1.15rem; color: var(--accent-ink); }
+.add { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent); font-size: 1.5rem; font-weight: 600; transition: transform .15s; }
+.add:hover { transform: scale(1.1); }
+/* ==== 9.3 Barra de filtros (botões de categoria + ordenar) ==== */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-block: 22px 28px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { min-height: 38px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: .88rem; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+select, .select { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
+.empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+.empty h3 { font-size: 1.8rem; color: var(--text); margin-bottom: 8px; }
+
+/* ======================================================================
+   10. FORMULÁRIOS
+   ====================================================================== */
+/* Formulário em 2 colunas; a classe .full faz o campo ocupar a linha toda. */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-grid .full { grid-column: 1 / -1; }
+/* ==== 10.1 Rótulo, campo e mensagem de erro ==== */
+.field label { display: flex; justify-content: space-between; gap: 8px; font-size: .85rem; font-weight: 500; margin-bottom: 6px; }
+.field label small { color: var(--accent-ink); font-weight: 500; font-size: .72rem; }
+.field input:not([type=checkbox]):not([type=radio]):not([type=range]), .field textarea {
+  width: 100%; min-height: 48px; padding: 0 16px; background: var(--field); border: 1px solid var(--line); border-radius: 10px; outline: 0; transition: border-color .2s;
+}
+.field textarea { padding: 12px 16px; min-height: 100px; resize: vertical; }
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field input::placeholder, .field textarea::placeholder { color: var(--muted); opacity: .8; }
+/* A classe "invalid" é colocada pelo JavaScript (mascaras.js) quando o campo tem erro. */
+.field input.invalid, .field textarea.invalid { border-color: var(--danger); }
+/* display: block é importante: reserva o espaço da mensagem de erro. Sem isso a tela */
+/* pulava quando o erro aparecia/sumia e o clique errava o botão. */
+.error-msg { display: block; color: var(--danger); font-size: .8rem; margin-top: 4px; min-height: 1.1em; }
+.pw-wrap { position: relative; }
+.pw-wrap .link { position: absolute; right: 12px; top: 12px; font-size: .78rem; }
+.check { display: flex; gap: 10px; align-items: center; font-size: .9rem; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.counter { text-align: right; font-size: .75rem; color: var(--muted); }
+
+/* ======================================================================
+   11. LOGIN E CADASTRO
+   ====================================================================== */
+/* ==== 11.1 Layout: painel vinho com a logo na esquerda + formulário na direita ==== */
+.auth { display: grid; grid-template-columns: 480px 1fr; min-height: calc(100vh - 80px); }
+.auth-side { background: var(--secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 24px; padding: 40px; }
+.auth-side .ring { position: relative; width: 300px; aspect-ratio: 1; }
+.auth-side .ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.auth-side .ring::before { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 1.5px solid var(--accent-soft); }
+.auth-side h2 { font-size: 2.4rem; }
+.auth-side p { font-size: .95rem; }
+.auth-main { display: flex; justify-content: center; padding: 40px 24px; }
+.auth-box { width: min(600px, 100%); }
+/* ==== 11.2 Abas "Entrar | Criar conta" ==== */
+.tabs { display: flex; gap: 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.tabs a { padding: 10px 0; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.tabs a.active { color: var(--accent-ink); border-color: var(--accent); }
+.auth-box h1 { font-size: clamp(2.2rem, 4vw, 2.9rem); }
+.stack { display: grid; gap: 18px; }
+.form-msg { padding: 12px 16px; border-radius: 10px; font-size: .9rem; display: none; }
+.form-msg.show { display: block; background: var(--danger-faint); border: 1px solid var(--danger); }
+.form-msg.ok { background: var(--accent-faint); border-color: var(--accent); }
+.center { text-align: center; }
+
+/* ======================================================================
+   12. CARRINHO
+   ====================================================================== */
+/* ==== 12.1 Lista de itens (esquerda) + resumo do pedido (direita) ==== */
+.cart-layout { display: grid; grid-template-columns: 1fr 420px; gap: 32px; align-items: start; }
+.cart-item { display: flex; gap: 18px; align-items: center; padding: 16px; margin-bottom: 16px; }
+.cart-item .info { flex: 1; min-width: 0; }
+.cart-item h3 { font-size: 1.6rem; }
+.cart-item p { font-size: .85rem; color: var(--muted); }
+/* ==== 12.2 Botões de quantidade (− 1 +) ==== */
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; height: 40px; }
+.stepper button { width: 40px; height: 40px; background: none; border: 0; font-size: 1.2rem; border-radius: 50%; }
+.stepper span { width: 28px; text-align: center; font-weight: 600; }
+.line-total { min-width: 110px; text-align: right; font-weight: 600; font-size: 1.2rem; color: var(--accent-ink); }
+/* ==== 12.3 Caixa de resumo do pedido ==== */
+/* position: sticky faz o resumo acompanhar a rolagem da página. */
+.summary { padding: 28px; position: sticky; top: 100px; }
+.summary h2 { font-size: 2rem; margin-bottom: 16px; }
+.sum-row { display: flex; justify-content: space-between; padding-block: 5px; font-size: .95rem; }
+.sum-row.total { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 14px; align-items: baseline; }
+.sum-row.total strong { font-family: var(--font-title); font-size: 2.4rem; color: var(--accent-ink); }
+.coupon { display: flex; gap: 10px; margin-block: 14px 4px; }
+.coupon input { flex: 1; min-width: 0; min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); text-transform: uppercase; }
+.pay { display: flex; gap: 10px; flex-wrap: wrap; margin-block: 8px 20px; }
+.pay label { cursor: pointer; }
+/* ==== 12.4 Opções de pagamento (Pix, Cartão, Dinheiro) ==== */
+/* Escondo o radio de verdade (opacity: 0) e estilizo o <span> ao lado. */
+/* O :checked + span pinta de dourado a opção escolhida. */
+.pay input { position: absolute; opacity: 0; }
+.pay span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); font-size: .88rem; font-weight: 500; }
+.pay input:checked + span { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.pay input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+.lbl { font-size: .85rem; font-weight: 500; display: block; margin-top: 14px; }
+
+/* ======================================================================
+   13. PEDIDOS
+   ====================================================================== */
+.order { padding: 22px; margin-bottom: 18px; }
+.order-main { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+.order .info { flex: 1; min-width: 220px; }
+.order h3 { font-size: 1.9rem; }
+.order small { color: var(--muted); }
+.order .items { font-size: .92rem; margin-top: 6px; }
+.status { display: inline-flex; align-items: center; height: 28px; padding: 0 14px; border-radius: 14px; font-size: .78rem; font-weight: 600; border: 1.5px solid var(--accent); }
+.status.prep { background: var(--accent); color: var(--on-accent); }
+.status.done { background: var(--field); border-color: var(--line); }
+.order-total { text-align: right; min-width: 130px; }
+.order-total strong { display: block; font-family: var(--font-title); font-size: 2rem; color: var(--accent-ink); }
+.order-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+/* ==== 13.1 Detalhes do pedido (abrem e fecham) ==== */
+/* Começa escondido (display: none). O JavaScript coloca a classe "open" pra mostrar. */
+.details { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); display: none; font-size: .92rem; }
+.details.open { display: block; }
+.details ul { list-style: none; display: grid; gap: 4px; margin-block: 8px; }
+
+/* ======================================================================
+   14. PERFIL
+   ====================================================================== */
+.profile { display: grid; grid-template-columns: 340px 1fr; gap: 28px; align-items: start; }
+.side { padding: 28px 20px; text-align: center; }
+.side .avatar { width: 120px; height: 120px; border-radius: 50%; border: 2px solid var(--accent); margin: 0 auto 14px; object-fit: cover; }
+.side h2 { font-size: 1.9rem; }
+.side p { color: var(--muted); font-size: .85rem; word-break: break-all; }
+.menu { margin-top: 24px; display: grid; gap: 6px; text-align: left; }
+.menu button { height: 46px; padding-inline: 18px; border: 0; background: none; text-align: left; border-radius: 10px; font-weight: 500; border-left: 3px solid transparent; }
+.menu button.active { background: var(--accent-faint); border-left-color: var(--accent); color: var(--accent-ink); }
+.menu .danger { color: var(--danger); }
+/* ==== 14.1 Painéis (Dados, Endereço, Aparência) ==== */
+/* Só o painel com a classe "active" aparece. O JavaScript troca isso quando clica no menu. */
+.panel { padding: 32px; display: none; }
+.panel.active { display: block; }
+.panel h2 { font-size: 2.3rem; margin-bottom: 22px; }
+/* ==== 14.2 Seletor Claro / Escuro ==== */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.seg button { height: 38px; min-width: 110px; border: 0; background: none; border-radius: 999px; font-weight: 600; font-size: .9rem; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+
+/* ======================================================================
+   15. BUSCA
+   ====================================================================== */
+.big-search { display: flex; align-items: center; gap: 12px; background: var(--field); border: 1.5px solid var(--accent-soft); border-radius: 999px; padding: 8px 8px 8px 24px; }
+.big-search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; font-size: 1.15rem; height: 44px; }
+/* ==== 15.1 Filtros (esquerda) + resultados (direita) ==== */
+.search-layout { display: grid; grid-template-columns: 280px 1fr; gap: 28px; margin-top: 28px; align-items: start; }
+.filters { padding: 24px; position: sticky; top: 100px; }
+.filters h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.filters h3 { font-family: var(--font-body); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); margin-block: 20px 10px; }
+.filters .check { margin-bottom: 8px; }
+.filters input[type=range] { width: 100%; accent-color: var(--accent); }
+.range-lbl { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); }
+.res-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.res-head h2 { font-size: 2.2rem; }
+.search-layout .grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+
+/* ======================================================================
+   16. AVISO RÁPIDO (aparece e some)
+   ====================================================================== */
+/* Fica escondido embaixo da tela (opacity: 0). A classe "show" (colocada pelo JavaScript) faz subir e aparecer. */
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 30px); background: var(--accent); color: var(--on-accent); padding: 12px 22px; border-radius: 999px; font-weight: 600; font-size: .9rem; box-shadow: 0 8px 24px rgba(0,0,0,.3); opacity: 0; transition: .3s; z-index: 100; max-width: calc(100% - 32px); text-align: center; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ======================================================================
+   17. RESPONSIVO (celular e tablet)
+   ====================================================================== */
+/* @media = "só aplica essas regras se a tela for assim". Quanto menor a tela, */
+/* mais eu empilho as colunas e escondo o que não cabe. */
+/* ==== 17.1 Telas até 1180px: o menu vira ☰ ==== */
+@media (max-width: 1180px) {
+  .menu-btn { display: block; }
+  .nav { flex-wrap: wrap; }
+  .nav-panel { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--primary); flex-direction: column; align-items: stretch; padding: 20px 24px 26px; border-bottom: 1px solid var(--line); gap: 18px; }
+  .nav-panel.open { display: flex; }
+  .nav-links { flex-direction: column; gap: 6px; }
+  .nav-links a { padding: 10px 0; }
+  .search { width: 100%; }
+  .nav-actions { flex-wrap: wrap; }
+}
+/* ==== 17.2 Telas até 980px (tablet): tudo em 1 coluna ==== */
+@media (max-width: 980px) {
+  .hero { grid-template-columns: 1fr; text-align: center; }
+  .hero p { margin-inline: auto; }
+  .hero-actions { justify-content: center; }
+  .hero-art { width: min(380px, 80%); order: -1; }
+  .cat-grid, .steps { grid-template-columns: 1fr; }
+  .auth { grid-template-columns: 1fr; }
+  .auth-side { padding: 28px 20px; }
+  .auth-side .ring { width: 150px; }
+  .auth-side h2 { font-size: 1.8rem; }
+  .auth-side p { display: none; }
+  .cart-layout, .profile, .search-layout { grid-template-columns: 1fr; }
+  .summary, .filters { position: static; }
+}
+/* ==== 17.3 Telas até 640px (celular) ==== */
+@media (max-width: 640px) {
+  main { padding-block: 28px 48px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .foot-grid { grid-template-columns: 1fr; }
+  .cart-item { flex-wrap: wrap; }
+  .cart-item .info { flex-basis: calc(100% - 120px); }
+  .line-total { text-align: left; }
+  .order-total { text-align: left; }
+  .panel { padding: 22px; }
+  .grid { grid-template-columns: 1fr; }
+  .search-layout .grid { grid-template-columns: 1fr; }
+  .brand { font-size: 1.5rem; letter-spacing: .12em; }
+}
+/* ==== 17.4 Acessibilidade: quem não quer animação ==== */
+/* Se o aparelho da pessoa pede "menos movimento", eu desligo as transições. */
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
